@@ -5,11 +5,11 @@ description: Language change behavior
 
 compatible: "zmk,behavior-language"
 
-include: zero_param.yaml
+include: one_param.yaml
 
 properties:
   bindings:
     type: phandle-array
     required: true
-  layer:
-    type: int
+  layers:
+    type: array
