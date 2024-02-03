@@ -19,5 +19,6 @@
     "editor.formatOnSave": true,
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
-  "cmake.sourceDirectory": "/home/xopc/zmk/app"
+  "cmake.sourceDirectory": "/home/xopc/zmk/app",
+  "cmake.configureOnOpen": false
 }
