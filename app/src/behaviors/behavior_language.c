@@ -12,7 +12,9 @@
 
 #include <zmk/keymap.h>
 #include <zmk/behavior.h>
-#include <zmk/events/keycode_state_changed.h>
+#include <zmk/language.h>
+
+uint8_t current_language_state = 0;
 
 LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 
@@ -22,24 +24,17 @@ struct behavior_lang_config {
     uint8_t layers[];
 };
 
-struct behavior_lang_data {
-    uint8_t current_lang;
-};
+struct behavior_lang_data {};
 
-static int behavior_lang_init(const struct device *dev) {
-    struct behavior_lang_data *data = dev->data;
-    data->current_lang = 0;
-    return 0;
-};
+static int behavior_lang_init(const struct device *dev) { return 0; };
 
-static int get_number_of_switches(struct behavior_lang_config *config,
-                                  struct behavior_lang_data *data, uint8_t target_lang) {
-    if (data->current_lang == target_lang)
+static int get_number_of_switches(const struct behavior_lang_config *config, uint8_t target_lang) {
+    if (current_language_state == target_lang)
         return 0;
-    if (data->current_lang < target_lang) {
-        return target_lang - data->current_lang;
+    if (current_language_state < target_lang) {
+        return target_lang - current_language_state;
     } else {
-        return config->layers_count - data->current_lang + target_lang;
+        return config->layers_count - current_language_state + target_lang;
     }
 };
 
@@ -47,10 +42,9 @@ static int lang_keymap_binding_pressed(struct zmk_behavior_binding *binding,
                                        struct zmk_behavior_binding_event event) {
     const struct device *dev = zmk_behavior_get_binding(binding->behavior_dev);
     const struct behavior_lang_config *config = dev->config;
-    struct behavior_lang_data *data = dev->data;
 
-    const uint8_t number_of_switches = get_number_of_switches(config, data, binding->param1);
-    LOG_DBG("LANG current_lang %d target_lang %d number_of_switches %d", data->current_lang,
+    const uint8_t number_of_switches = get_number_of_switches(config, binding->param1);
+    LOG_DBG("LANG current_lang %d target_lang %d number_of_switches %d", current_language_state,
             binding->param1, number_of_switches);
     // Switch needed number of times
     if (number_of_switches > 0) {
@@ -59,7 +53,7 @@ static int lang_keymap_binding_pressed(struct zmk_behavior_binding *binding,
             zmk_behavior_queue_add(event.position, config->behavior, false, 0);
             LOG_DBG("LANG switch");
         }
-        data->current_lang = binding->param1;
+        current_language_state = binding->param1;
         zmk_keymap_layer_to(binding->param1);
     }
     return ZMK_BEHAVIOR_OPAQUE;
@@ -81,7 +75,7 @@ static const struct behavior_driver_api behavior_lang_driver_api = {
         .layers = DT_INST_PROP(n, layers),                                                         \
         .layers_count = DT_INST_PROP_LEN(n, layers),                                               \
     };                                                                                             \
-    BEHAVIOR_DT_INST_DEFINE(n, behavior_lang_init, NULL, &behavior_lang_data_##n,                  \
+    BEHAVIOR_DT_INST_DEFINE(0, behavior_lang_init, NULL, &behavior_lang_data_##n,                  \
                             &behavior_lang_config_##n, APPLICATION,                                \
                             CONFIG_KERNEL_INIT_PRIORITY_DEFAULT, &behavior_lang_driver_api);
 
