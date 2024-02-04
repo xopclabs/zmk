@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-#define DT_DRV_COMPAT zmk_behavior_language
+#define DT_DRV_COMPAT zmk_behavior_lang_switch
 
 #include <zephyr/device.h>
 #include <drivers/behavior.h>
@@ -20,7 +20,8 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 
 struct behavior_lang_config {
     struct zmk_behavior_binding behavior;
-    uint8_t layers_count;
+    uint8_t n_languages;
+    bool no_layer_switch;
     uint8_t layers[];
 };
 
@@ -34,7 +35,7 @@ static int get_number_of_switches(const struct behavior_lang_config *config, uin
     if (current_language_state < target_lang) {
         return target_lang - current_language_state;
     } else {
-        return config->layers_count - current_language_state + target_lang;
+        return config->n_languages - current_language_state + target_lang;
     }
 };
 
@@ -54,7 +55,9 @@ static int lang_keymap_binding_pressed(struct zmk_behavior_binding *binding,
             LOG_DBG("LANG switch");
         }
         current_language_state = binding->param1;
-        zmk_keymap_layer_to(binding->param1);
+        if (!config->no_layer_switch) {
+            zmk_keymap_layer_to(binding->param1);
+        }
     }
     return ZMK_BEHAVIOR_OPAQUE;
 }
@@ -73,7 +76,8 @@ static const struct behavior_driver_api behavior_lang_driver_api = {
     static struct behavior_lang_config behavior_lang_config_##n = {                                \
         .behavior = ZMK_KEYMAP_EXTRACT_BINDING(0, DT_DRV_INST(n)),                                 \
         .layers = DT_INST_PROP(n, layers),                                                         \
-        .layers_count = DT_INST_PROP_LEN(n, layers),                                               \
+        .n_languages = DT_INST_PROP_LEN(n, layers),                                                \
+        .no_layer_switch = DT_INST_PROP(n, no_layer_switch),                                       \
     };                                                                                             \
     BEHAVIOR_DT_INST_DEFINE(n, behavior_lang_init, NULL, &behavior_lang_data_##n,                  \
                             &behavior_lang_config_##n, APPLICATION,                                \
