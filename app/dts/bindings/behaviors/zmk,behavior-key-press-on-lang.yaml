@@ -1,8 +1,0 @@
-# Copyright (c) 2024 The ZMK Contributors
-# SPDX-License-Identifier: MIT
-
-description: Press key on specific language
-
-compatible: "zmk,behavior-key-press-on-lang"
-
-include: zero_param.yaml

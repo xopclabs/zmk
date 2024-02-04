@@ -75,7 +75,7 @@ static const struct behavior_driver_api behavior_lang_driver_api = {
         .layers = DT_INST_PROP(n, layers),                                                         \
         .layers_count = DT_INST_PROP_LEN(n, layers),                                               \
     };                                                                                             \
-    BEHAVIOR_DT_INST_DEFINE(0, behavior_lang_init, NULL, &behavior_lang_data_##n,                  \
+    BEHAVIOR_DT_INST_DEFINE(n, behavior_lang_init, NULL, &behavior_lang_data_##n,                  \
                             &behavior_lang_config_##n, APPLICATION,                                \
                             CONFIG_KERNEL_INIT_PRIORITY_DEFAULT, &behavior_lang_driver_api);
 
