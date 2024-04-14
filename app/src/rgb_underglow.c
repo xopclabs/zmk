@@ -82,7 +82,7 @@ static struct zmk_led_hsb hsb_scale_zero_max(struct zmk_led_hsb hsb) {
 }
 
 static struct led_rgb hsb_to_rgb(struct zmk_led_hsb hsb) {
-    float r, g, b;
+    float r = 0, g = 0, b = 0;
 
     uint8_t i = hsb.h / 60;
     float v = hsb.b / ((float)BRT_MAX);
@@ -239,7 +239,7 @@ static void zmk_rgb_underglow_save_state_work(struct k_work *_work) {
 static struct k_work_delayable underglow_save_work;
 #endif
 
-static int zmk_rgb_underglow_init(const struct device *_arg) {
+static int zmk_rgb_underglow_init(void) {
     led_strip = DEVICE_DT_GET(STRIP_CHOSEN);
 
 #if IS_ENABLED(CONFIG_ZMK_RGB_UNDERGLOW_EXT_POWER)
